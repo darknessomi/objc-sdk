@@ -10,8 +10,13 @@
 
 #import "QNRecorderDelegate.h"
 
+
 @class QNResponseInfo;
 @class QNUploadOption;
+@class QNConfiguration;
+@class ALAsset;
+@class PHAsset;
+
 
 /**
  *    上传完成后的回调函数
@@ -21,16 +26,6 @@
  *    @param resp 上传成功会返回文件信息，失败为nil; 可以通过此值是否为nil 判断上传结果
  */
 typedef void (^QNUpCompletionHandler)(QNResponseInfo *info, NSString *key, NSDictionary *resp);
-
-/**
- *    为持久化上传记录，根据上传的key以及文件名 生成持久化的记录key
- *
- *    @param uploadKey 上传的key
- *    @param filePath  文件名
- *
- *    @return 根据uploadKey, filepath 算出的记录key
- */
-typedef NSString *(^QNRecorderKeyGenerator)(NSString *uploadKey, NSString *filePath);
 
 /**
    管理上传的类，可以生成一次，持续使用，不必反复创建。
@@ -65,29 +60,23 @@ typedef NSString *(^QNRecorderKeyGenerator)(NSString *uploadKey, NSString *fileP
             recorderKeyGenerator:(QNRecorderKeyGenerator)recorderKeyGenerator;
 
 /**
- *    使用持久化记录接口以及持久化key生成函数的构造方法，默认情况下使用上传存储的key, 如果key为nil或者有特殊字符比如/，建议使用自己的生成函数
+ *    使用配置信息生成上传实例
  *
- *    @param recorder             持久化记录接口实现
- *    @param recorderKeyGenerator 持久化记录key生成函数
- *    @param proxyDict            代理，NSURLSession 的代理，使用参考Apple的文档
+ *    @param config           配置信息
  *
  *    @return 上传管理类实例
  */
-- (instancetype)initWithRecorder:(id <QNRecorderDelegate> )recorder
-            recorderKeyGenerator:(QNRecorderKeyGenerator)recorderKeyGenerator
-                           proxy:(NSDictionary *)proxyDict;
+- (instancetype)initWithConfiguration:(QNConfiguration *)config;
 
 
 /**
  *    方便使用的单例方法
  *
- *    @param recorder             持久化记录接口实现
- *    @param recorderKeyGenerator 持久化记录key生成函数
+ *    @param config           配置信息
  *
  *    @return 上传管理类实例
  */
-+ (instancetype)sharedInstanceWithRecorder:(id <QNRecorderDelegate> )recorder
-                      recorderKeyGenerator:(QNRecorderKeyGenerator)recorderKeyGenerator;
++ (instancetype)sharedInstanceWithConfiguration:(QNConfiguration *)config;
 
 /**
  *    直接上传数据
@@ -98,11 +87,11 @@ typedef NSString *(^QNRecorderKeyGenerator)(NSString *uploadKey, NSString *fileP
  *    @param completionHandler 上传完成后的回调函数
  *    @param option            上传时传入的可选参数
  */
-- (void)putData:(NSData *)data
-            key:(NSString *)key
-          token:(NSString *)token
-       complete:(QNUpCompletionHandler)completionHandler
-         option:(QNUploadOption *)option;
+- (void) putData:(NSData *)data
+             key:(NSString *)key
+           token:(NSString *)token
+        complete:(QNUpCompletionHandler)completionHandler
+          option:(QNUploadOption *)option;
 
 /**
  *    上传文件
@@ -113,10 +102,40 @@ typedef NSString *(^QNRecorderKeyGenerator)(NSString *uploadKey, NSString *fileP
  *    @param completionHandler 上传完成后的回调函数
  *    @param option            上传时传入的可选参数
  */
-- (void)putFile:(NSString *)filePath
-            key:(NSString *)key
-          token:(NSString *)token
-       complete:(QNUpCompletionHandler)completionHandler
-         option:(QNUploadOption *)option;
+- (void) putFile:(NSString *)filePath
+             key:(NSString *)key
+           token:(NSString *)token
+        complete:(QNUpCompletionHandler)completionHandler
+          option:(QNUploadOption *)option;
+
+/**
+ *    上传ALAsset文件
+ *
+ *    @param alasset           ALAsset文件
+ *    @param key               上传到云存储的key，为nil时表示是由七牛生成
+ *    @param token             上传需要的token, 由服务器生成
+ *    @param completionHandler 上传完成后的回调函数
+ *    @param option            上传时传入的可选参数
+ */
+- (void) putALAsset:(ALAsset *)asset
+                key:(NSString *)key
+              token:(NSString *)token
+           complete:(QNUpCompletionHandler)completionHandler
+             option:(QNUploadOption *)option;
+
+/**
+ *    上传PHAsset文件(IOS8 andLater)
+ *
+ *    @param asset             PHAsset文件
+ *    @param key               上传到云存储的key，为nil时表示是由七牛生成
+ *    @param token             上传需要的token, 由服务器生成
+ *    @param completionHandler 上传完成后的回调函数
+ *    @param option            上传时传入的可选参数
+ */
+- (void) putPHAsset:(PHAsset *)asset
+                key:(NSString *)key
+              token:(NSString *)token
+           complete:(QNUpCompletionHandler)completionHandler
+             option:(QNUploadOption *)option;
 
 @end

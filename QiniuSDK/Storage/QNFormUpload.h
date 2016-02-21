@@ -8,17 +8,19 @@
 
 #import <Foundation/Foundation.h>
 #import "QNUploadManager.h"
-#import "QNhttpDelegate.h"
+#import "QNHttpDelegate.h"
+#import "QNUpToken.h"
 
 @class QNHttpManager;
 @interface QNFormUpload : NSObject
 
-- (instancetype)initWithData:(NSData *)data
-                     withKey:(NSString *)key
-                   withToken:(NSString *)token
-       withCompletionHandler:(QNUpCompletionHandler)block
-                  withOption:(QNUploadOption *)option
-             withHttpManager:(id <QNHttpDelegate> )http;
+- (instancetype) initWithData:(NSData *)data
+                      withKey:(NSString *)key
+                    withToken:(QNUpToken *)token
+        withCompletionHandler:(QNUpCompletionHandler)block
+                   withOption:(QNUploadOption *)option
+              withHttpManager:(id <QNHttpDelegate> )http
+            withConfiguration:(QNConfiguration *)config;
 
 - (void)put;
 
